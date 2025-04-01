@@ -1,38 +1,13 @@
-import { useState, useEffect } from 'react';
+import React, { useContext } from "react"
+import { HotelContext } from "../context/HotelContext"
+import { Link, useNavigate } from "react-router-dom"
 
+const HotelsList: React.FC = () => {
+    const context = useContext(HotelContext)
+    const navigate = useNavigate()
 
-interface Hotel {
-    id: number;
-    name: string;
-    description: string;
-    city: string;
-    address: string;
-    starRating: number;
-    imageUrl: string;
-}
-
-const HotelsList = () => {
-    const [hotels, setProjects] = useState<Hotel[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        getData();
-    }, []);
-
-    const getData = () => {
-        fetch('/api/Hotel')
-            .then((response) => response.json())
-            .then((data: Hotel[]) => {
-                console.log(data)
-                setProjects(data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                setError(error.message);
-                setLoading(false);
-            });
-    }
+    if (!context) return <div>Контекст недоступен.</div>
+    const { hotels } = context
 
     const renderStars = (rating: number) => {
         const stars = [];
@@ -42,28 +17,23 @@ const HotelsList = () => {
         return stars;
     };
 
-    if (loading) {
-        return <div>Загрузка...</div>;
-    }
-
-    if (error) {
-        return <div>Ошибка: {error}</div>;
-    }
-
     return (
         <div>
             <h1>Список отелей</h1>
             <ul>
-                {}
                 {hotels.map((hotel) => (
-                    <li key={hotel.id}> {}
-                        <h2>{hotel.name}</h2> {}
+                    <li key={hotel.id}>
+                        <h2>{hotel.name}</h2>
                         <div>{renderStars(hotel.starRating)}</div>
-                        <p><b>Город:</b> {hotel.city}</p> {}
-                        <p><b>Адрес:</b> {hotel.address}</p> {}
-                        <p>{hotel.description}</p> {}
-                        <img src={hotel.imageUrl}></img> {}
-                    </li>
+                        <p><b>Город:</b> {hotel.city}</p>
+                        <img src={hotel.imageUrl} alt={hotel.name}></img>
+                        <div>
+                            <Link to={`/hotels/${hotel.id}`}>Просмотреть детали</Link>  
+                            <Link to={`/hotels/delete/${hotel.id}`} style={{ marginLeft: "10px", color: "red" }}>
+                            Удалить
+                            </Link>
+                        </div> 
+                    </li> 
                 ))}
             </ul>
         </div>
